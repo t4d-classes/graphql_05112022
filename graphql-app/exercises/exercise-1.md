@@ -6,13 +6,17 @@
 
 - title
 - isbn
-- copyrightYear
+- qty
 - price
 
-3. Add two endpoints to the GraphQL server. One which returns the array of books. And one which returns the book with id 2. The endpoints (fields) should be named `books` and `book` respectively.
+3. Add two endpoints to the GraphQL server. One which returns the array of books. And one which returns the book with an id 2. The endpoints (fields) should be named `books` and `book` respectively.
 
-4. Query the two new Query fields in the GraphQL playground to ensure they work.
+4. Query the two new Query fields in the Apollo GraphQL Studio to ensure they work.
+
+-- Raise Your Hand
 
 **Bonus**
 
-5. Return the full author data with the book.
+5. Taking what you know so far, return the full author data with the book.
+
+-- Click the Green Yes Circle
