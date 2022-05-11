@@ -7,6 +7,20 @@ const APP_QUERY = gql`
 `;
 
 function App() {
+
+  // fetch("/graphql", {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json'},
+  //   body: JSON.stringify({
+  //     operationName: 'App',
+  //     query: 'query App { message }',
+  //     variables: {}
+  //   })
+  // })
+  //   .then(res => res.json())
+  //   .then(({ data }) => console.log(data.message));
+
+
   const { loading, error, data } = useQuery(APP_QUERY);
 
   if (loading) return <p>Loading...</p>;
