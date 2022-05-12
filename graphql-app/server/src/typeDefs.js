@@ -6,10 +6,10 @@ export const typeDefs = gql`
     age: Int
     price: Float
     isCustomer: Boolean
-    color(colorId: ID): Color
+    color(colorId: ID!): Color
     colors: [Color]
-    book: Book
-    books: [Book]
+    book(bookId: ID!): Book
+    books(authorId: ID): [Book]
   }
 
   type Color {
