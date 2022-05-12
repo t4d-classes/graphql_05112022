@@ -10,10 +10,18 @@ export const typeDefs = gql`
     colors: [Color]
     book(bookId: ID!): Book
     books(authorId: ID): [Book]
+    contacts: [Contact]
+    people: [People]
   }
 
   type Mutation {
     appendColor(color: NewColor): Color
+    appendBook(book: NewBook!, author: AuthorInput!): Book
+    removeBook(bookId: ID!): Boolean
+  }
+
+  type Subscription {
+    colorAppended: Color
   }
 
   type Color {
@@ -36,6 +44,14 @@ export const typeDefs = gql`
     author: Author
   }
 
+  input NewBook {
+    title: String
+    isbn: String
+    quantity: Int
+    price: Float
+    authorId: ID
+  }  
+
   type Author {
     id: ID
     firstName: String
@@ -44,4 +60,32 @@ export const typeDefs = gql`
     books: [Book]
     fullName: String
   }
+
+  input AuthorInput { 
+    firstName: String
+    lastName: String
+    phoneNumber: String
+  }
+
+  interface Contact {
+    id: ID
+    firstName: String
+    lastName: String
+  }
+
+  type Employee implements Contact {
+    id: ID
+    firstName: String
+    lastName: String
+    ssn: String
+  }
+
+  type Vendor implements Contact {
+    id: ID
+    firstName: String
+    lastName: String
+    ein: String
+  }
+
+  union People = Employee | Vendor
 `;

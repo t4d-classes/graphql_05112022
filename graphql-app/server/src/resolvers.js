@@ -1,4 +1,39 @@
 import fetch from 'node-fetch';
+import { PubSub } from 'graphql-subscriptions';
+
+const vendors = [
+  {
+    id: 1,
+    firstName: 'A',
+    lastName: 'B',
+    companyName: 'Acme',
+    ein: '123123123',
+  },
+  {
+    id: 2,
+    firstName: 'C',
+    lastName: 'D',
+    companyName: 'Tooling Company',
+    ein: '234234234',
+  },
+];
+
+const employees = [
+  {
+    id: 1,
+    firstName: 'A',
+    lastName: 'B',
+    ssn: '123123123',
+  },
+  {
+    id: 2,
+    firstName: 'C',
+    lastName: 'D',
+    ssn: '234234234',
+  },
+];  
+
+const pubSub = new PubSub();
 
 const authorCache = new Map();
 
@@ -61,6 +96,44 @@ export const resolvers = {
       const res = await fetch(url)
       const books = await res.json();
       return books;
+    },
+    contacts() {
+      return [ ...vendors, ...employees ];
+    },
+    people() {
+      return [ ...vendors, ...employees ];
+    }
+  },
+  Contact: {
+    __resolveType: (obj) => {
+      if (obj.ssn) {
+        return 'Employee';
+      }
+      if (obj.ein) {
+        return 'Vendor';
+      }
+      return null;
+    },
+  },
+  People: {
+    __resolveType: (obj) => {
+      if (obj.ssn) {
+        return 'Employee';
+      }
+      if (obj.ein) {
+        return 'Vendor';
+      }
+      return null;
+    },
+  },  
+  Employee: {
+    id(contact) {
+      return 'Employee:' + contact.id;
+    }
+  },
+  Vendor: {
+    id(contact) {
+      return 'Vendor:' + contact.id;
     }
   },
   Mutation: {
@@ -74,8 +147,72 @@ export const resolvers = {
 
       const color = await res.json();
 
+      pubSub.publish('COLOR_APPENDED', { colorAppended: color });
+
       return color;
     },
+    async appendBook(_, args, context) {
+
+      const authors = await fetch(
+        `${context.restUrl}/authors?phoneNumber=${args.author.phoneNumber}`
+      ).then(res => res.json());
+
+      let authorId;
+
+      if (authors.length === 1) {
+        authorId = authors[0].id
+      } else {
+        const newAuthor = await fetch(`${context.restUrl}/authors`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(args.author),
+        }).then(res => res.json());
+        authorId = newAuthor.id;
+      }
+
+      return await fetch(`${context.restUrl}/books`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...args.book,
+          authorId,
+        }),
+      }).then(res => res.json());
+
+    },
+    async removeBook(_, args, context) {
+
+      const book = await fetch(
+        `${context.restUrl}/books/${args.bookId}`,
+      ).then(res => res.json());
+
+      await fetch(
+        `${context.restUrl}/books/${args.bookId}`,
+        { method: 'DELETE' },
+      );
+
+      const books = await fetch(
+        `${context.restUrl}/books?authorId=${book.authorId}`,
+      ).then(res => res.json());
+      
+      
+      if (books.length === 0) {
+        await fetch(
+          `${context.restUrl}/authors/${book.authorId}`,
+          { method: 'DELETE' },
+        );        
+      }
+
+      return true;
+
+    }
+  },
+  Subscription: {
+    colorAppended: {
+      subscribe: () => {
+        return pubSub.asyncIterator(['COLOR_APPENDED']);
+      }
+    }
   },
   Book: {
     // default resolver

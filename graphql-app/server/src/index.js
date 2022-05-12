@@ -2,9 +2,12 @@ import http from 'http';
 import dotenv from 'dotenv';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { execute, subscribe } from 'graphql';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 
 import { typeDefs } from './typeDefs.js';
 import { resolvers } from './resolvers.js';
+
+const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 dotenv.config();
 
@@ -24,8 +27,7 @@ getApp().then((app) => {
       subscriptionServer = new SubscriptionServer({
         execute,
         subscribe,
-        typeDefs,
-        resolvers,
+        schema,
       }, {
         server: server,
         path: '/graphql',
