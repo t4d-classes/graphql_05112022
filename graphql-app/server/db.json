@@ -14,6 +14,11 @@
       "id": 3,
       "name": "blue",
       "hexcode": "0000ff"
+    },
+    {
+      "name": "lime green",
+      "hexcode": "0fff00",
+      "id": 4
     }
   ],
   "authors": [

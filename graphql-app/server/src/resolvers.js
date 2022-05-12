@@ -63,6 +63,20 @@ export const resolvers = {
       return books;
     }
   },
+  Mutation: {
+    async appendColor(_, args, context) {
+
+      const res = await fetch(`${context.restUrl}/colors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(args.color),
+      });
+
+      const color = await res.json();
+
+      return color;
+    },
+  },
   Book: {
     // default resolver
     // isbn(book) {
@@ -83,5 +97,18 @@ export const resolvers = {
     qty(book) {
       return book.quantity;
     },
+  },
+  Author: {
+    fullName(author) {
+      return author.firstName + ' ' + author.lastName;
+    },
+    async books(author, _, context) {
+      let url = `${context.restUrl}/books`;
+      url = `${url}?authorId=${encodeURIComponent(author.id)}`;
+
+      const res = await fetch(url)
+      const books = await res.json();
+      return books;
+    }
   }
 };
